@@ -1,7 +1,6 @@
 package tranca;
 
 import bicicleta.Bicicleta;
-import bicicleta.Bicicleta.BicicletaStatus;;
 
 public class Tranca {
 	public enum TrancaStatus { LIVRE, OCUPADA, NOVA, APOSENTADA, EM_REPARO }
@@ -23,25 +22,10 @@ public class Tranca {
     	this.localizacao = localizacao;
     	this.anoDeFabricacao = anoDeFabricacao;
         this.modelo = modelo;
-        this.status = TrancaStatus.LIVRE;
     }
 
-	public boolean setBicicleta(Bicicleta b) {
-		if (this.status != TrancaStatus.LIVRE ||
-			this.status != TrancaStatus.NOVA) {
-			
-			return false;
-		}
-
-		if (b.getStatus() != BicicletaStatus.DISPONIVEL ||
-			b.getStatus() != BicicletaStatus.NOVA) {
-			
-			return false;
-		}
-
-		b.setStatus(BicicletaStatus.DISPONIVEL);
+	public void setBicicleta(Bicicleta b) {
 		this.bicicleta = b;
-		return true;
 	}
 
 	public Bicicleta removeBicicleta() {

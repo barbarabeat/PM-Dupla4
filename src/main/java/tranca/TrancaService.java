@@ -1,5 +1,6 @@
 package tranca;
 
+import bicicleta.Bicicleta.BicicletaStatus;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +21,11 @@ public class TrancaService {
         lastId = new AtomicInteger(tranca.size());
     }
 
-    public static void save(Bicicleta bicicleta, int numero, String localizacao,
+    public static void save(int numero, String localizacao,
                             String anoDeFabricacao, String modelo, TrancaStatus status) {
         
         int id = lastId.incrementAndGet();
-        Tranca t = new Tranca(id, bicicleta, numero, localizacao, anoDeFabricacao, modelo);
+        Tranca t = new Tranca(id, null, numero, localizacao, anoDeFabricacao, modelo);
         t.setStatus(status);
 
         tranca.put(id, t);
@@ -34,9 +35,8 @@ public class TrancaService {
         return tranca.values();
     }
 
-    public static void definirStatus(int trancaId, TrancaStatus status) {
-        Tranca t = findById(trancaId);
-        t.setStatus(status);
+    public static void reintegrarAoSistema(Tranca t) {
+        t.setStatus(TrancaStatus.LIVRE);
     }
 
     public static void removeBicicleta(int trancaId) {
@@ -45,15 +45,27 @@ public class TrancaService {
         t.removeBicicleta();
     }
 
-    public static void update(int id, Bicicleta bicicleta, int numero, String localizacao,
-                            String anoDeFabricacao, String modelo, TrancaStatus status) {
-
-        
+    public static void setStatus(Tranca t, TrancaStatus s) {
+        t.setStatus(s);
     }
 
-    public static void addBicicleta(int trancaId, Bicicleta b) {
-        Tranca t = findById(trancaId);
+
+    public static boolean addBicicleta(Tranca t, Bicicleta b) {
+		if (t.status != TrancaStatus.LIVRE ||
+			t.status != TrancaStatus.NOVA) {
+			
+			return false;
+		}
+
+		if (b.getStatus() != BicicletaStatus.DISPONIVEL ||
+			b.getStatus() != BicicletaStatus.NOVA) {
+			
+			return false;
+		}
+
+		b.setStatus(BicicletaStatus.DISPONIVEL);
         t.setBicicleta(b);
+        return true;
     }
 
     public static Tranca findById(int trancaId) {
@@ -62,5 +74,15 @@ public class TrancaService {
 
     public static void delete(int trancaId) {
     	tranca.remove(trancaId);
+    }
+
+    public static void update(Tranca t, int numero, String localizacao,
+                            String anoDeFabricacao, String modelo, TrancaStatus s) {
+
+        t.setNumero(numero);
+        t.setLocalizacao(localizacao);
+        t.setAnoDeFabricacao(anoDeFabricacao);
+        t.setModelo(modelo);
+        t.setStatus(s);
     }
 }

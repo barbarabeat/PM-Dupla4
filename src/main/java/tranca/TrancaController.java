@@ -27,63 +27,68 @@ public class TrancaController {
     )
     public static void create(Context ctx) {
         NewTrancaRequest tranca = ctx.bodyAsClass(NewTrancaRequest.class);
-        TrancaService.save(tranca.bicicleta,tranca.numero, tranca.localizacao, tranca.anoDeFabricacao, tranca.modelo, tranca.status);
+        TrancaService.save(tranca.numero, null, tranca.anoDeFabricacao, tranca.modelo, TrancaStatus.NOVA);
         ctx.status(201);
     }
+
     @SuppressWarnings("unused")
    	@OpenApi(
-               summary = "Colocar uma tranca nova ou retornando de reparo de volta na rede de totens",
-               operationId = "integrarNaRedeTranca",
-               path = "/tranca/integrarNaRede",
-               method = HttpMethod.POST,
-               pathParams = {@OpenApiParam(name = "integrarNaRede", type = Integer.class, description = "integrar na rede a Tranca")},
-               tags = {"Tranca"},
-               requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Bicicleta.class)}),
-               responses = {
-                       @OpenApiResponse(status = "200"),
-                       @OpenApiResponse(status = "422", content = {@OpenApiContent(from = ErrorResponse.class)})
-               }
-       )
-       public static void integrarNaRedeTranca(Context ctx) {
-           Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));  
-           if (tranca == null) {
-               throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
-           }else {
-           	if(tranca != TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")))){ //new Tranca
-           		NewTrancaRequest newTranca = ctx.bodyAsClass(NewTrancaRequest.class);
-           	} else { //old Tranca that returns to service
-               	TrancaService.definirStatus(tranca.id, TrancaStatus.LIVRE);
-           	}
-               ctx.status(200);
-           } 
-       }
+        summary = "Colocar uma tranca nova ou retornando de reparo de volta na rede de totens",
+        operationId = "integrarNaRedeTranca",
+        path = "/tranca/integrarNaRede",
+        method = HttpMethod.POST,
+        pathParams = {@OpenApiParam(name = "integrarNaRede", type = Integer.class, description = "integrar na rede a Tranca")},
+        tags = {"Tranca"},
+        requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Bicicleta.class)}),
+        responses = {
+                @OpenApiResponse(status = "200"),
+                @OpenApiResponse(status = "422", content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void integrarNaRedeTranca(Context ctx) {
+        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));  
+        
+        if (tranca == null) { // Nova tranca sendo adicionada
+            NewTrancaRequest newTranca = ctx.bodyAsClass(NewTrancaRequest.class);
+            TrancaService.save(newTranca.numero, null, newTranca.anoDeFabricacao, newTranca.modelo, TrancaStatus.NOVA);
+        } else { // Tranca antiga que retorna ao sistema
+            TrancaService.reintegrarAoSistema(tranca);
+        }
+        
+        ctx.status(200); 
+    }
 
    	@SuppressWarnings("unused")
    	@OpenApi(
-               summary = "Retirar tranca para reparo ou aposentadoria",
-               operationId = "RetirarDaRedeTranca",
-               path = "/tranca/retirarDaRedeTranca",
-               method = HttpMethod.POST,
-               pathParams = {@OpenApiParam(name = "RetirarDaRedeTranca", type = Integer.class, description = "retirar da rede a Tranca")},
-               tags = {"Tranca"},
-               requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Bicicleta.class)}),
-               responses = {
-                       @OpenApiResponse(status = "200"),
-                       @OpenApiResponse(status = "422", content = {@OpenApiContent(from = ErrorResponse.class)})
-               }
-       )
-       public static void retirarDaRedeTranca(Context ctx) {
-            Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
-            // FIX ME: get status through POST params
-            TrancaStatus status = TrancaStatus.APOSENTADA;
-            if (tranca == null)
-                throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
-            if (tranca.getStatus() == TrancaStatus.OCUPADA)
-                throw new NotFoundResponse("Desocupe a tranca antes de retirá-la do sistema.");
-            
-            TrancaService.definirStatus(tranca.id, status);
-            ctx.status(200);
-       }
+        summary = "Retirar tranca para reparo ou aposentadoria",
+        operationId = "RetirarDaRedeTranca",
+        path = "/tranca/retirarDaRedeTranca",
+        method = HttpMethod.POST,
+        pathParams = {@OpenApiParam(name = "RetirarDaRedeTranca", type = Integer.class, description = "retirar da rede a Tranca")},
+        tags = {"Tranca"},
+        requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Bicicleta.class)}),
+        responses = {
+                @OpenApiResponse(status = "200"),
+                @OpenApiResponse(status = "422", content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void retirarDaRedeTranca(Context ctx) {
+        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));
+        // FIX ME: get status through POST params
+        TrancaStatus status = TrancaStatus.APOSENTADA;
+        
+        if (tranca == null)
+            throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
+        
+        if (tranca.getStatus() == TrancaStatus.OCUPADA)
+            throw new NotFoundResponse("Desocupe a tranca antes de retirá-la do sistema.");
+        
+        if (tranca.getLocalizacao() != null)
+            throw new NotFoundResponse("Remova a tranca de seu totem atual antes de retirá-la do sistema.");
+        
+        TrancaService.setStatus(tranca, status);
+        ctx.status(200);
+    }
 
     @OpenApi(
             summary = "Recuperar Trancas Cadastradas",
@@ -136,13 +141,17 @@ public class TrancaController {
             }
     )
     public static void update(Context ctx) {
+        // WARNING: PRA QUÊ DIABOS EU VOU PERMITIR AO USUÁRIO ALTERAR A TRANCA????
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
-        if (tranca == null) {
+        // FIX ME: pegar status via POST
+        TrancaStatus status = TrancaStatus.EM_REPARO;
+        if (tranca == null)
             throw new NotFoundResponse("Tranca nao encontrada");
-        } else {
-            TrancaService.update(tranca.id, tranca.bicicleta,tranca.numero, tranca.localizacao, tranca.anoDeFabricacao, tranca.modelo, tranca.status);
-            ctx.status(204);
-        }
+        
+        NewTrancaRequest trancaRequest = ctx.bodyAsClass(NewTrancaRequest.class);
+        TrancaService.update(tranca, trancaRequest.numero, trancaRequest.localizacao, trancaRequest.anoDeFabricacao, trancaRequest.modelo, status);
+        ctx.status(204);
+        
     }
 
     @OpenApi(
@@ -185,16 +194,15 @@ public class TrancaController {
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
         // FIX ME: get status through POST body
         TrancaStatus status = TrancaStatus.LIVRE;
-        if (tranca == null) {
+        if (tranca == null) 
             throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
-        }else {
-            TrancaService.definirStatus(tranca.id, status);
-            ctx.status(200);
-        }
+
+        TrancaService.setStatus(tranca, status);
+        ctx.status(200);
     }  
 
     @OpenApi(
-            summary = "Obter Bicicleta na Tranca",
+            summary = "Consultar Bicicleta na Tranca",
             operationId = "obterBicicletaNaTranca",
             path = "/tranca/:trancaId/bicicleta",
             method = HttpMethod.GET,
@@ -208,11 +216,12 @@ public class TrancaController {
     )
     public static void obterBicicletaNaTranca(Context ctx) {
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
-        if (tranca == null) {
+        
+        if (tranca == null)
             throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
-        }else {
-        	BicicletaController.getOne(ctx);
-            ctx.status(200);
-        }
+        
+        BicicletaController.getOne(ctx);
+        ctx.status(200);
+
     }
 }

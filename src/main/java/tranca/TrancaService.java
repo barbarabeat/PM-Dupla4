@@ -39,10 +39,9 @@ public class TrancaService {
         t.setStatus(TrancaStatus.LIVRE);
     }
 
-    public static void removeBicicleta(int trancaId) {
-        Tranca t = findById(trancaId);
-
+    public static void removeBicicleta(Tranca t) {
         t.removeBicicleta();
+        t.setStatus(TrancaStatus.LIVRE);
     }
 
     public static void setStatus(Tranca t, TrancaStatus s) {

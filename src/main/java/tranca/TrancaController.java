@@ -141,7 +141,6 @@ public class TrancaController {
             }
     )
     public static void update(Context ctx) {
-        // WARNING: PRA QUÊ DIABOS EU VOU PERMITIR AO USUÁRIO ALTERAR A TRANCA????
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
         // FIX ME: pegar status via POST
         TrancaStatus status = TrancaStatus.EM_REPARO;
@@ -151,7 +150,6 @@ public class TrancaController {
         NewTrancaRequest trancaRequest = ctx.bodyAsClass(NewTrancaRequest.class);
         TrancaService.update(tranca, trancaRequest.numero, trancaRequest.localizacao, trancaRequest.anoDeFabricacao, trancaRequest.modelo, status);
         ctx.status(204);
-        
     }
 
     @OpenApi(

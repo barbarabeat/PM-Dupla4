@@ -31,7 +31,6 @@ public class Tranca {
 	public Bicicleta removeBicicleta() {
 		Bicicleta b = this.bicicleta;
 		this.bicicleta = null;
-		this.status = TrancaStatus.LIVRE;
 		return b;
 	}
 

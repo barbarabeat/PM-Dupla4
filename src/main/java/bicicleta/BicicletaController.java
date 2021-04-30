@@ -74,7 +74,7 @@ public class BicicletaController {
         } else { //old bike that returns to service
             BicicletaService.update(bicicleta.id, BicicletaStatus.DISPONIVEL);
         }
-        TrancaService.addBicicleta(tranca.id, bicicleta);
+        TrancaService.addBicicleta(tranca, bicicleta);
         ctx.status(200);         
     }
 
@@ -106,7 +106,7 @@ public class BicicletaController {
 
         /* Identify purpose for removal and call BicicletaService.update with appropriate status */
         
-        TrancaService.removeBicicleta(tranca.id);
+        TrancaService.removeBicicleta(tranca);
         ctx.status(200);
 
     }    

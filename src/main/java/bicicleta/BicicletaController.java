@@ -105,7 +105,7 @@ public class BicicletaController {
         }
 
         /* Identify purpose for removal and call BicicletaService.update with appropriate status */
-
+        
         TrancaService.removeBicicleta(tranca.id);
         ctx.status(200);
 

@@ -9,7 +9,7 @@ sonarcloud-check:
       - .sonar/cache
   script:
     - mvn verify sonar:sonar
-    - dpl --provider=heroku --app=microsservicoexternobicicleta --api-key=$HEROKU_STAGING_API_KEY
+    - dpl --provider=heroku --app=equipamento --api-key=$HEROKU_STAGING_API_KEY
   only:
     - merge_requests
     - master

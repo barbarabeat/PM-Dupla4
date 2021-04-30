@@ -161,7 +161,7 @@ public class TotemController {
         if (tranca == null)
             throw new NotFoundResponse("Tranca nao encontrada");
 
-        TotemService.addTranca(tranca.id, tranca);
+        TotemService.addTranca(totem, tranca);
 
         ctx.json(totem);
         ctx.status(200);

@@ -1,6 +1,7 @@
 package totem;
 
 import tranca.Tranca;
+import tranca.Tranca.TrancaStatus;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +16,6 @@ public class TotemService {
     static {
         totem.put(0, new Totem(0, "Rua das Laranjeiras"));
         totem.put(1, new Totem(1, "Silent Hill Avenue"));
-        /*totems.put(2, new Totem(2, "Carol", "carol@carol.java"));
-        totems.put(3, new Totem(3, "Dave", "dave@dave.java"));*/
         lastId = new AtomicInteger(totem.size());
     }
 
@@ -29,10 +28,13 @@ public class TotemService {
         return totem.values();
     }
 
-    public static void addTranca(int idTotem, Tranca t) {
-        Totem totem = findById(idTotem);
-
-        totem.addTranca(t);
+    public static void addTranca(Totem totem, Tranca t) {
+        if (t.getStatus() == TrancaStatus.LIVRE ||
+            t.getStatus() == TrancaStatus.NOVA) {
+                
+            totem.addTranca(t);
+            t.setLocalizacao(totem.getLocal());
+        }
     }
 
     public static void update(int idTotem, String localizacao) {

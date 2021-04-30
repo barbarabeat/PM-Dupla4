@@ -15,12 +15,7 @@ public class Totem {
     }
 
     public boolean addTranca(Tranca tranca) {
-        if (tranca.getStatus() == TrancaStatus.LIVRE ||
-            tranca.getStatus() == TrancaStatus.NOVA) {
-
-            return this.trancas.add(tranca);
-        }
-        return false;
+        return this.trancas.add(tranca);
     }
 
     public HashSet<Tranca> getTrancas() {
@@ -33,5 +28,9 @@ public class Totem {
             return false;
 
         return this.trancas.remove(tranca);
+    }
+
+    public String getLocal() {
+        return this.localizacao;
     }
 }

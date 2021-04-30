@@ -30,6 +30,10 @@
          <artifactId>javalin-bundle</artifactId>
          <version>3.13.5</version>
      </dependency>
+     <properties>
+        <sonar.projectKey>dupla4-pm_d4-programacao-modular-equipamento</sonar.projectKey>
+        <sonar.organization>dupla4-pm</sonar.organization>
+      </properties>
   </dependencies>
 
   <build>

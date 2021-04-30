@@ -45,8 +45,8 @@ public class TotemService {
         return totem.get(idTotem);
     }
 
-    public static void delete(int idTotem) {
-        totem.remove(idTotem);
+    public static Totem delete(int idTotem) {
+        return totem.remove(idTotem);
     }
 
 }

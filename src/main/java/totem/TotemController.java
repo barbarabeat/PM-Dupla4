@@ -105,15 +105,13 @@ public class TotemController {
             }
     )
     public static void delete(Context ctx) {
-        Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam("idTotem")));
-        if (totem == null) {
+        if (TotemService.delete(utils.paramToInt(ctx.pathParam("idTotem"))) == null)
             throw new NotFoundResponse("Totem nao encontrado");
-        } else {
-            TotemService.delete(totem.id);
-            ctx.status(204);
-        }
+
+        ctx.status(204);
     }
 
+    // MÉTODO FUNCIONANDO
     @OpenApi(
         summary = "Listar trancas de um totem",
         operationId = "idTotem",
@@ -129,13 +127,11 @@ public class TotemController {
     )
     public static void listarTrancasDoTotem(Context ctx) {
         Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam("idTotem")));
-        if (totem == null) {
+        if (totem == null)
             throw new NotFoundResponse("Totem nao encontrado");
-        } else {
-            HashSet<Tranca> trancas = totem.getTrancas();
-            ctx.json(trancas);
-            ctx.status(200);
-        }
+        
+        ctx.json(totem.getTrancas());
+        ctx.status(200);
     }
 
     // MÉTODO FUNCIONANDO

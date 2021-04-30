@@ -104,6 +104,7 @@ public class Tranca {
 		this.status = status;
 	}
 
+	// Overloading equals(Object o) in order to add Trancas to sets.
 	public boolean equals(Tranca t) {
 		return this.id == t.id ? true : false;
 	}

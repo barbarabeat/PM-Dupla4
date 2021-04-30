@@ -94,7 +94,9 @@ public class BicicletaController {
     )
     public static void retirarDaRedeBicicleta(Context ctx) {
         Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam("idBicicleta")));
-        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
+        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));
+        BicicletaStatus status = utils.paramToBicicletaStatus(ctx.formParam("acao"));
+        
         if (bicicleta == null) {
             throw new NotFoundResponse("Dados Inválidos - Bicicleta nao encontrada");
         } 

@@ -60,8 +60,7 @@ public class BicicletaController {
     )
     public static void integrarNaRedeBicicleta(Context ctx) {
         Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam("idBicicleta")));
-        // FIX ME: receive via POST
-        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
+        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));
       
         if (bicicleta == null) {
             throw new NotFoundResponse("Dados Inválidos - Bicicleta nao encontrada");

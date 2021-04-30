@@ -37,8 +37,12 @@ public class TotemService {
         }
     }
 
-    public static void update(int idTotem, String localizacao) {
-        totem.put(idTotem, new Totem(idTotem, localizacao));
+    public static void update(Totem totem, String l) {
+        totem.setLocal(l);
+
+        for (Tranca t : totem.getTrancas()) {
+            t.setLocalizacao(l);
+        }
     }
 
     public static Totem findById(int idTotem) {
@@ -49,12 +53,14 @@ public class TotemService {
         if (t.getStatus() != TrancaStatus.LIVRE)
             return null;
 
-        if (totem.deleteTranca(t))
+        if (totem.deleteTranca(t)) {
+            t.setLocalizacao(null);
             return t;
+        }
 
         return null;
     }
-    
+
     public static Totem delete(int idTotem) {
         return totem.remove(idTotem);
     }

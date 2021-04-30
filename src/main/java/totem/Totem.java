@@ -1,7 +1,6 @@
 package totem;
 import java.util.HashSet;
 import tranca.Tranca;
-import tranca.Tranca.TrancaStatus;
 
 public class Totem {
     public int id;
@@ -29,5 +28,9 @@ public class Totem {
 
     public String getLocal() {
         return this.localizacao;
+    }
+
+    public void setLocal(String localizacao) {
+        this.localizacao = localizacao;
     }
 }

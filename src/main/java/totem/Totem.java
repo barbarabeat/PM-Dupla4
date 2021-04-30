@@ -24,9 +24,6 @@ public class Totem {
     }
 
     public boolean deleteTranca(Tranca tranca) {
-        if (tranca.getStatus() != TrancaStatus.LIVRE)
-            return false;
-
         return this.trancas.remove(tranca);
     }
 

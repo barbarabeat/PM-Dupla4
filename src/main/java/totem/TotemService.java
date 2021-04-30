@@ -45,6 +45,16 @@ public class TotemService {
         return totem.get(idTotem);
     }
 
+    public static Tranca removeTranca(Totem totem, Tranca t) {
+        if (t.getStatus() != TrancaStatus.LIVRE)
+            return null;
+
+        if (totem.deleteTranca(t))
+            return t;
+
+        return null;
+    }
+    
     public static Totem delete(int idTotem) {
         return totem.remove(idTotem);
     }

@@ -91,6 +91,7 @@ public class TotemController {
         }
     }
 
+    // MÉTODO FUNCIONANDO
     @OpenApi(
             summary = "Deletar totem pelo ID",
             operationId = "deleteTotemId",
@@ -162,4 +163,32 @@ public class TotemController {
         ctx.json(totem);
         ctx.status(200);
     }
+
+    @OpenApi(
+        summary = "Adicionar trancas no totem",
+        operationId = "idTotem",
+        path = "/totem/:idTotem/trancas/:idTranca",
+        method = HttpMethod.DELETE,
+        pathParams = {@OpenApiParam(name = "totemId", type = Integer.class, description = "Totem id")},
+        tags = {"Totem"},
+        responses = {
+            @OpenApiResponse(status = "200"),
+            @OpenApiResponse(status = "422", content = {@OpenApiContent(from = ErrorResponse.class)}),
+            @OpenApiResponse(status = "404", content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void removerTranca(Context ctx) {
+        Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam("idTotem")));
+        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
+        if (totem == null)
+            throw new NotFoundResponse("Totem nao encontrado");
+        
+        if (tranca == null)
+            throw new NotFoundResponse("Tranca nao encontrada");
+
+        Tranca result = TotemService.removeTranca(totem, tranca);
+
+        ctx.json(result);
+        ctx.status(200);
+    }   
 }

@@ -103,8 +103,13 @@ public class TotemController {
         }
     )
     public static void delete(Context ctx) {
-        if (TotemService.delete(utils.paramToInt(ctx.pathParam("idTotem"))) == null)
-            throw new NotFoundResponse("Totem nao encontrado");
+        Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam("idTotem")));
+        
+        if (totem == null)
+            throw new NotFoundResponse("Totem não encontrado");
+    
+        if (TotemService.delete(totem) == null)
+            throw new NotFoundResponse("Totem não pode ser removido pois possui trancas ocupadas.");
 
         ctx.status(204);
     }

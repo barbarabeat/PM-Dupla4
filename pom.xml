@@ -16,6 +16,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <sonar.projectKey>dupla4-pm_d4-programacao-modular-equipamento</sonar.projectKey>
+    <sonar.organization>dupla4-pm</sonar.organization>
   </properties>
 
   <dependencies>
@@ -30,10 +32,6 @@
          <artifactId>javalin-bundle</artifactId>
          <version>3.13.5</version>
      </dependency>
-     <properties>
-        <sonar.projectKey>dupla4-pm_d4-programacao-modular-equipamento</sonar.projectKey>
-        <sonar.organization>dupla4-pm</sonar.organization>
-      </properties>
   </dependencies>
 
   <build>

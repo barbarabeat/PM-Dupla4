@@ -8,7 +8,6 @@ import io.javalin.plugin.openapi.ui.ReDocOptions;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.swagger.v3.oas.models.info.Info;
 
-import user.UserController;
 import bicicleta.BicicletaController;
 import totem.TotemController;
 import tranca.TrancaController;
@@ -79,7 +78,7 @@ public class App {
                     post(TrancaController::retirarDaRedeTranca);
                 });
             });
-        }).start(7002);//Integer.valueOf(System.getenv("PORT")));
+        }).start(Integer.valueOf(System.getenv("PORT")));
 
         System.out.println("Check out ReDoc docs at http://localhost:7002/redoc");
         System.out.println("Check out Swagger UI docs at http://localhost:7002/swagger-ui");

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TrancaController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">equipamento</a> &gt; <a href="index.source.html" class="el_package">tranca</a> &gt; <span class="el_source">TrancaController.java</span></div><h1>TrancaController.java</h1><pre class="source lang-java linenums">package tranca;
+
+import utils.utils;
+import app.ErrorResponse;
+import tranca.Tranca.TrancaStatus;
+import bicicleta.Bicicleta;
+import bicicleta.BicicletaController;
+import io.javalin.http.Context;
+import io.javalin.http.NotFoundResponse;
+import io.javalin.plugin.openapi.annotations.*;
+
+
+// This is a controller, it should contain logic related to client/server IO
+<span class="nc" id="L14">public class TrancaController {</span>
+
+    @OpenApi(
+            summary = &quot;Cadastrar Tranca&quot;,
+            operationId = &quot;cadastrarTranca&quot;,
+            path = &quot;/tranca&quot;,
+            method = HttpMethod.POST,
+            tags = {&quot;Tranca&quot;},
+            requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = NewTrancaRequest.class)}),
+            responses = {
+                    @OpenApiResponse(status = &quot;201&quot;),
+                    @OpenApiResponse(status = &quot;400&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void create(Context ctx) {
+<span class="nc" id="L29">        NewTrancaRequest tranca = ctx.bodyAsClass(NewTrancaRequest.class);</span>
+<span class="nc" id="L30">        TrancaService.save(tranca.numero, null, tranca.anoDeFabricacao, tranca.modelo, TrancaStatus.NOVA);</span>
+<span class="nc" id="L31">        ctx.status(201);</span>
+<span class="nc" id="L32">    }</span>
+
+    @SuppressWarnings(&quot;unused&quot;)
+   	@OpenApi(
+        summary = &quot;Colocar uma tranca nova ou retornando de reparo de volta na rede de totens&quot;,
+        operationId = &quot;integrarNaRedeTranca&quot;,
+        path = &quot;/tranca/integrarNaRede&quot;,
+        method = HttpMethod.POST,
+        pathParams = {@OpenApiParam(name = &quot;integrarNaRede&quot;, type = Integer.class, description = &quot;integrar na rede a Tranca&quot;)},
+        tags = {&quot;Tranca&quot;},
+        requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Tranca.class)}),
+        responses = {
+                @OpenApiResponse(status = &quot;200&quot;),
+                @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void integrarNaRedeTranca(Context ctx) {
+<span class="nc" id="L49">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam(&quot;idTranca&quot;)));  </span>
+        
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (tranca == null) { // Nova tranca sendo adicionada</span>
+<span class="nc" id="L52">            NewTrancaRequest newTranca = ctx.bodyAsClass(NewTrancaRequest.class);</span>
+<span class="nc" id="L53">            TrancaService.save(newTranca.numero, null, newTranca.anoDeFabricacao, newTranca.modelo, TrancaStatus.NOVA);</span>
+<span class="nc" id="L54">        } else { // Tranca antiga que retorna ao sistema</span>
+<span class="nc" id="L55">            TrancaService.reintegrarAoSistema(tranca);</span>
+        }
+        
+<span class="nc" id="L58">        ctx.status(200); </span>
+<span class="nc" id="L59">    }</span>
+
+   	@SuppressWarnings(&quot;unused&quot;)
+   	@OpenApi(
+        summary = &quot;Retirar tranca para reparo ou aposentadoria&quot;,
+        operationId = &quot;RetirarDaRedeTranca&quot;,
+        path = &quot;/tranca/retirarDaRedeTranca&quot;,
+        method = HttpMethod.POST,
+        pathParams = {@OpenApiParam(name = &quot;RetirarDaRedeTranca&quot;, type = Integer.class, description = &quot;retirar da rede a Tranca&quot;)},
+        tags = {&quot;Tranca&quot;},
+        requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Bicicleta.class)}),
+        responses = {
+                @OpenApiResponse(status = &quot;200&quot;),
+                @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void retirarDaRedeTranca(Context ctx) {
+<span class="nc" id="L76">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam(&quot;idTranca&quot;)));</span>
+
+<span class="nc" id="L78">        TrancaService.setStatus(tranca, TrancaStatus.APOSENTADA);</span>
+
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (tranca == null)</span>
+<span class="nc" id="L81">            throw new NotFoundResponse(&quot;Dados Inválidos - Tranca nao encontrada&quot;);</span>
+        
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (tranca.getStatus() == TrancaStatus.OCUPADA)</span>
+<span class="nc" id="L84">            throw new NotFoundResponse(&quot;Desocupe a tranca antes de retirá-la do sistema.&quot;);</span>
+        
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (tranca.getLocalizacao() != null)</span>
+<span class="nc" id="L87">            throw new NotFoundResponse(&quot;Remova a tranca de seu totem atual antes de retirá-la do sistema.&quot;);</span>
+        
+<span class="nc" id="L89">        TrancaService.setStatus(tranca, TrancaStatus.OCUPADA);</span>
+<span class="nc" id="L90">        ctx.status(200);</span>
+<span class="nc" id="L91">    }</span>
+
+    @OpenApi(
+            summary = &quot;Recuperar Trancas Cadastradas&quot;,
+            operationId = &quot;recuperarTranca&quot;,
+            path = &quot;/tranca&quot;,
+            method = HttpMethod.GET,
+            tags = {&quot;Tranca&quot;},
+            responses = {
+                    @OpenApiResponse(status = &quot;200&quot;, content = {@OpenApiContent(from = Tranca[].class)})
+            }
+    )
+    public static void getAll(Context ctx) {
+<span class="nc" id="L104">        ctx.json(TrancaService.getAll());</span>
+<span class="nc" id="L105">    }</span>
+
+    @OpenApi(
+            summary = &quot;Get tranca pelo Id&quot;,
+            operationId = &quot;getTrancaId&quot;,
+            path = &quot;/tranca/:idTranca&quot;,
+            method = HttpMethod.GET,
+            pathParams = {@OpenApiParam(name = &quot;idTranca&quot;, type = Integer.class, description = &quot;Tranca Id&quot;)},
+            tags = {&quot;Tranca&quot;},
+            responses = {
+                    @OpenApiResponse(status = &quot;200&quot;, content = {@OpenApiContent(from = Tranca.class)}),
+                    @OpenApiResponse(status = &quot;400&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+                    @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void getOne(Context ctx) {
+<span class="nc" id="L121">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam(&quot;idTranca&quot;)));</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (tranca == null) {</span>
+<span class="nc" id="L123">            throw new NotFoundResponse(&quot;Tranca nao encontrada&quot;);</span>
+        } else {
+<span class="nc" id="L125">            ctx.json(tranca);</span>
+        }
+<span class="nc" id="L127">    }</span>
+
+    @OpenApi(
+            summary = &quot;EditarTranca&quot;,
+            operationId = &quot;updateBicicletaId&quot;,
+            path = &quot;/tranca/:idTranca&quot;,
+            method = HttpMethod.PUT,
+            pathParams = {@OpenApiParam(name = &quot;idTranca&quot;, type = Integer.class, description = &quot;Tranca Id&quot;)},
+            tags = {&quot;Tranca&quot;},
+            requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = NewTrancaRequest.class)}),
+            responses = {
+                    @OpenApiResponse(status = &quot;204&quot;),
+                    @OpenApiResponse(status = &quot;400&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+                    @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void update(Context ctx) {
+<span class="nc" id="L144">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam(&quot;idTranca&quot;)));</span>
+
+<span class="nc" id="L146">        TrancaService.setStatus(tranca, TrancaStatus.OCUPADA);</span>
+
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (tranca == null)</span>
+<span class="nc" id="L149">            throw new NotFoundResponse(&quot;Tranca nao encontrada&quot;);</span>
+        
+<span class="nc" id="L151">        NewTrancaRequest trancaRequest = ctx.bodyAsClass(NewTrancaRequest.class);</span>
+<span class="nc" id="L152">        TrancaService.update(tranca, trancaRequest.numero, trancaRequest.localizacao, trancaRequest.anoDeFabricacao, trancaRequest.modelo, tranca.getStatus());</span>
+<span class="nc" id="L153">        ctx.status(204);</span>
+<span class="nc" id="L154">    }</span>
+
+    @OpenApi(
+            summary = &quot;Deletar tranca pelo Id&quot;,
+            operationId = &quot;deleteTrancaId&quot;,
+            path = &quot;/tranca/:idTranca&quot;,
+            method = HttpMethod.DELETE,
+            pathParams = {@OpenApiParam(name = &quot;idTranca&quot;, type = Integer.class, description = &quot;Tranca Id&quot;)},
+            tags = {&quot;Tranca&quot;},
+            responses = {
+                    @OpenApiResponse(status = &quot;204&quot;),
+                    @OpenApiResponse(status = &quot;400&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+                    @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void delete(Context ctx) {
+<span class="nc" id="L170">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam(&quot;idTranca&quot;)));</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (tranca == null) {</span>
+<span class="nc" id="L172">            throw new NotFoundResponse(&quot;Tranca nao encontrada&quot;);</span>
+        } else {
+<span class="nc" id="L174">            TrancaService.delete(tranca.id);</span>
+<span class="nc" id="L175">            ctx.status(204);</span>
+        }
+<span class="nc" id="L177">    }</span>
+
+    @OpenApi(
+            summary = &quot;Alterar Status da Tranca&quot;,
+            operationId = &quot;alterarStatusTranca&quot;,
+            path = &quot;/tranca/:idTranca/bicicleta&quot;,
+            method = HttpMethod.POST,
+            pathParams = {@OpenApiParam(name = &quot;trancaId&quot;, type = Integer.class, description = &quot;Tranca Id&quot;)},
+            tags = {&quot;Tranca&quot;},
+            responses = {
+                    @OpenApiResponse(status = &quot;204&quot;),
+                    @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+                    @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void alterarStatusTranca(Context ctx) {
+<span class="nc" id="L193">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam(&quot;idTranca&quot;)));</span>
+
+<span class="nc" id="L195">        TrancaService.setStatus(tranca, TrancaStatus.LIVRE);</span>
+
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        if (tranca == null) </span>
+<span class="nc" id="L198">            throw new NotFoundResponse(&quot;Dados Inválidos - Tranca nao encontrada&quot;);</span>
+
+<span class="nc" id="L200">        TrancaService.setStatus(tranca, TrancaStatus.LIVRE);</span>
+<span class="nc" id="L201">        ctx.status(200);</span>
+<span class="nc" id="L202">    }  </span>
+
+    @OpenApi(
+            summary = &quot;Consultar Bicicleta na Tranca&quot;,
+            operationId = &quot;obterBicicletaNaTranca&quot;,
+            path = &quot;/tranca/:trancaId/bicicleta&quot;,
+            method = HttpMethod.GET,
+            pathParams = {@OpenApiParam(name = &quot;trancaId&quot;, type = Integer.class, description = &quot;Tranca Id&quot;)},
+            tags = {&quot;Tranca&quot;},
+            responses = {
+                    @OpenApiResponse(status = &quot;204&quot;),
+                    @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+                    @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void obterBicicletaNaTranca(Context ctx) {
+<span class="nc" id="L218">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam(&quot;idTranca&quot;)));</span>
+        
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        if (tranca == null)</span>
+<span class="nc" id="L221">            throw new NotFoundResponse(&quot;Dados Inválidos - Tranca nao encontrada&quot;);</span>
+        
+<span class="nc" id="L223">        BicicletaController.getOne(ctx);</span>
+<span class="nc" id="L224">        ctx.status(200);</span>
+
+<span class="nc" id="L226">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

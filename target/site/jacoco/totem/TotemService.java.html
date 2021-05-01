@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TotemService.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">equipamento</a> &gt; <a href="index.source.html" class="el_package">totem</a> &gt; <span class="el_source">TotemService.java</span></div><h1>TotemService.java</h1><pre class="source lang-java linenums">package totem;
+
+import tranca.Tranca;
+import tranca.Tranca.TrancaStatus;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+// This is a service, it should be independent from Javalin
+<span class="nc" id="L11">public class TotemService {</span>
+
+<span class="nc" id="L13">    private static Map&lt;Integer, Totem&gt; totem = new HashMap&lt;&gt;();</span>
+    private static AtomicInteger lastId;
+
+    static {
+<span class="nc" id="L17">        totem.put(0, new Totem(0, &quot;Rua das Laranjeiras&quot;));</span>
+<span class="nc" id="L18">        totem.put(1, new Totem(1, &quot;Silent Hill Avenue&quot;));</span>
+<span class="nc" id="L19">        lastId = new AtomicInteger(totem.size());</span>
+<span class="nc" id="L20">    }</span>
+
+    public static void save(String localizacao) {
+<span class="nc" id="L23">        int id = lastId.incrementAndGet();</span>
+<span class="nc" id="L24">        totem.put(id, new Totem(id, localizacao));</span>
+<span class="nc" id="L25">    }</span>
+
+    public static Collection&lt;Totem&gt; getAll() {
+<span class="nc" id="L28">        return totem.values();</span>
+    }
+
+    public static void addTranca(Totem totem, Tranca t) {
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        if (t.getStatus() == TrancaStatus.LIVRE ||</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">            t.getStatus() == TrancaStatus.NOVA) {</span>
+                
+<span class="nc" id="L35">            totem.addTranca(t);</span>
+<span class="nc" id="L36">            t.setLocalizacao(totem.getLocal());</span>
+        }
+<span class="nc" id="L38">    }</span>
+
+    public static void update(Totem totem, String l) {
+<span class="nc" id="L41">        totem.setLocal(l);</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        for (Tranca t : totem.getTrancas()) {</span>
+<span class="nc" id="L44">            t.setLocalizacao(l);</span>
+<span class="nc" id="L45">        }</span>
+<span class="nc" id="L46">    }</span>
+
+    public static Totem findById(int idTotem) {
+<span class="nc" id="L49">        return totem.get(idTotem);</span>
+    }
+
+    public static Tranca removeTranca(Totem totem, Tranca t) {
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (t.getStatus() != TrancaStatus.LIVRE)</span>
+<span class="nc" id="L54">            return null;</span>
+
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (totem.deleteTranca(t)) {</span>
+<span class="nc" id="L57">            t.setLocalizacao(null);</span>
+<span class="nc" id="L58">            return t;</span>
+        }
+
+<span class="nc" id="L61">        return null;</span>
+    }
+
+    public static Totem delete(Totem tot) {
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (Tranca t : tot.getTrancas()) {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (t.getStatus() != TrancaStatus.LIVRE)</span>
+<span class="nc" id="L67">                return null;</span>
+<span class="nc" id="L68">        }</span>
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (Tranca t : tot.getTrancas()) {</span>
+<span class="nc" id="L71">            removeTranca(tot, t);</span>
+<span class="nc" id="L72">        }</span>
+
+<span class="nc" id="L74">        return totem.remove(tot.id);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

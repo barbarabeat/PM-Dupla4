@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TotemController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">equipamento</a> &gt; <a href="index.source.html" class="el_package">totem</a> &gt; <span class="el_source">TotemController.java</span></div><h1>TotemController.java</h1><pre class="source lang-java linenums">package totem;
+
+import tranca.Tranca;
+import tranca.TrancaService;
+import utils.utils;
+import app.ErrorResponse;
+import io.javalin.http.Context;
+import io.javalin.http.NotFoundResponse;
+import io.javalin.plugin.openapi.annotations.*;
+
+// This is a controller, it should contain logic related to client/server IO
+<span class="nc" id="L12">public class TotemController {</span>
+
+    @OpenApi(
+            summary = &quot;Incluir Totem&quot;,
+            operationId = &quot;createTotem&quot;,
+            path = &quot;/totem&quot;,
+            method = HttpMethod.POST,
+            tags = {&quot;Totem&quot;},
+            requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = NewTotemRequest.class)}),
+            responses = {
+                    @OpenApiResponse(status = &quot;201&quot;),
+                    @OpenApiResponse(status = &quot;400&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void create(Context ctx) {
+<span class="nc" id="L27">        NewTotemRequest totem = ctx.bodyAsClass(NewTotemRequest.class);</span>
+<span class="nc" id="L28">        TotemService.save(totem.localizacao);</span>
+<span class="nc" id="L29">        ctx.status(201);</span>
+<span class="nc" id="L30">    }</span>
+
+    @OpenApi(
+        summary = &quot;Recuperar totens cadastrados&quot;,
+        operationId = &quot;getAllTotens&quot;,
+        path = &quot;/totem&quot;,
+        method = HttpMethod.GET,
+        tags = {&quot;Totem&quot;},
+        responses = {
+                @OpenApiResponse(status = &quot;200&quot;, content = {@OpenApiContent(from = Totem[].class)})
+        }
+    )
+    public static void getAll(Context ctx) {
+<span class="nc" id="L43">        ctx.json(TotemService.getAll());</span>
+<span class="nc" id="L44">    }</span>
+
+    @OpenApi(
+        summary = &quot;Get Totem pelo Id&quot;,
+        operationId = &quot;getTotemById&quot;,
+        path = &quot;/totem/:idTotem&quot;,
+        method = HttpMethod.GET,
+        pathParams = {@OpenApiParam(name = &quot;totemId&quot;, type = Integer.class, description = &quot;Totem Id&quot;)},
+        tags = {&quot;Totem&quot;},
+        responses = {
+                @OpenApiResponse(status = &quot;200&quot;, content = {@OpenApiContent(from = Totem.class)}),
+                @OpenApiResponse(status = &quot;400&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+                @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void getOne(Context ctx) {
+<span class="nc" id="L60">        Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam(&quot;idTotem&quot;)));</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (totem == null)</span>
+<span class="nc" id="L62">            throw new NotFoundResponse(&quot;Totem nao encontrado&quot;);</span>
+
+<span class="nc" id="L64">            ctx.json(totem);</span>
+<span class="nc" id="L65">    }</span>
+
+    @OpenApi(
+        summary = &quot;Editar Totem pelo id&quot;,
+        operationId = &quot;updateTotemId&quot;,
+        path = &quot;/totem/:idTotem&quot;,
+        method = HttpMethod.PATCH,
+        pathParams = {@OpenApiParam(name = &quot;totemId&quot;, type = Integer.class, description = &quot;Totem Id&quot;)},
+        tags = {&quot;Totem&quot;},
+        requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = NewTotemRequest.class)}),
+        responses = {
+            @OpenApiResponse(status = &quot;204&quot;),
+            @OpenApiResponse(status = &quot;400&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+            @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void update(Context ctx) {
+<span class="nc" id="L82">        Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam(&quot;idTotem&quot;)));</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (totem == null)</span>
+<span class="nc" id="L84">            throw new NotFoundResponse(&quot;Totem not found&quot;);</span>
+
+<span class="nc" id="L86">        NewTotemRequest newTotem = ctx.bodyAsClass(NewTotemRequest.class);</span>
+<span class="nc" id="L87">        TotemService.update(totem, newTotem.localizacao);</span>
+<span class="nc" id="L88">        ctx.status(204);</span>
+<span class="nc" id="L89">    }</span>
+
+    // MÉTODO FUNCIONANDO
+    @OpenApi(
+        summary = &quot;Deletar totem pelo ID&quot;,
+        operationId = &quot;deleteTotemId&quot;,
+        path = &quot;/totem/:idTotem&quot;,
+        method = HttpMethod.DELETE,
+        pathParams = {@OpenApiParam(name = &quot;totemId&quot;, type = Integer.class, description = &quot;Totem id&quot;)},
+        tags = {&quot;Totem&quot;},
+        responses = {
+            @OpenApiResponse(status = &quot;200&quot;),
+            @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+            @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void delete(Context ctx) {
+<span class="nc" id="L106">        Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam(&quot;idTotem&quot;)));</span>
+        
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (totem == null)</span>
+<span class="nc" id="L109">            throw new NotFoundResponse(&quot;Totem não encontrado&quot;);</span>
+    
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (TotemService.delete(totem) == null)</span>
+<span class="nc" id="L112">            throw new NotFoundResponse(&quot;Totem não pode ser removido pois possui trancas ocupadas.&quot;);</span>
+
+<span class="nc" id="L114">        ctx.status(204);</span>
+<span class="nc" id="L115">    }</span>
+
+    // MÉTODO FUNCIONANDO
+    @OpenApi(
+        summary = &quot;Listar trancas de um totem&quot;,
+        operationId = &quot;idTotem&quot;,
+        path = &quot;/totem/:idTotem/trancas&quot;,
+        method = HttpMethod.GET,
+        pathParams = {@OpenApiParam(name = &quot;totemId&quot;, type = Integer.class, description = &quot;Totem id&quot;)},
+        tags = {&quot;Totem&quot;},
+        responses = {
+            @OpenApiResponse(status = &quot;200&quot;),
+            @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+            @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void listarTrancasDoTotem(Context ctx) {
+<span class="nc" id="L132">        Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam(&quot;idTotem&quot;)));</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (totem == null)</span>
+<span class="nc" id="L134">            throw new NotFoundResponse(&quot;Totem nao encontrado&quot;);</span>
+        
+<span class="nc" id="L136">        ctx.json(totem.getTrancas());</span>
+<span class="nc" id="L137">        ctx.status(200);</span>
+<span class="nc" id="L138">    }</span>
+
+    // MÉTODO FUNCIONANDO
+    @OpenApi(
+        summary = &quot;Adicionar trancas no totem&quot;,
+        operationId = &quot;idTotem&quot;,
+        path = &quot;/totem/:idTotem/trancas&quot;,
+        method = HttpMethod.POST,
+        pathParams = {@OpenApiParam(name = &quot;totemId&quot;, type = Integer.class, description = &quot;Totem id&quot;)},
+        tags = {&quot;Totem&quot;},
+        responses = {
+            @OpenApiResponse(status = &quot;200&quot;),
+            @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+            @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void adicionarTranca(Context ctx) {
+<span class="nc" id="L155">        Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam(&quot;idTotem&quot;)));</span>
+<span class="nc" id="L156">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam(&quot;idTranca&quot;)));</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (totem == null)</span>
+<span class="nc" id="L158">            throw new NotFoundResponse(&quot;Totem nao encontrado&quot;);</span>
+        
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (tranca == null)</span>
+<span class="nc" id="L161">            throw new NotFoundResponse(&quot;Tranca nao encontrada&quot;);</span>
+
+<span class="nc" id="L163">        TotemService.addTranca(totem, tranca);</span>
+
+<span class="nc" id="L165">        ctx.json(totem);</span>
+<span class="nc" id="L166">        ctx.status(200);</span>
+<span class="nc" id="L167">    }</span>
+
+    @OpenApi(
+        summary = &quot;Remove tranca de um totem&quot;,
+        operationId = &quot;idTotem&quot;,
+        path = &quot;/totem/:idTotem/trancas/:idTranca&quot;,
+        method = HttpMethod.DELETE,
+        pathParams = {@OpenApiParam(name = &quot;totemId&quot;, type = Integer.class, description = &quot;Totem id&quot;)},
+        tags = {&quot;Totem&quot;},
+        responses = {
+            @OpenApiResponse(status = &quot;200&quot;),
+            @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+            @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+        }
+    )
+    public static void removerTranca(Context ctx) {
+<span class="nc" id="L183">        Totem totem = TotemService.findById(utils.paramToInt(ctx.pathParam(&quot;idTotem&quot;)));</span>
+<span class="nc" id="L184">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam(&quot;idTranca&quot;)));</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (totem == null)</span>
+<span class="nc" id="L186">            throw new NotFoundResponse(&quot;Totem não encontrado&quot;);</span>
+        
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        if (tranca == null)</span>
+<span class="nc" id="L189">            throw new NotFoundResponse(&quot;Tranca não encontrada&quot;);</span>
+
+<span class="nc" id="L191">        Tranca result = TotemService.removeTranca(totem, tranca);</span>
+
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        if (result == null)</span>
+<span class="nc" id="L194">            throw new NotFoundResponse(&quot;Tranca não pertence ao totem especificado ou precisa ser desocupada antes de ser removida.&quot;);</span>
+
+<span class="nc" id="L196">        ctx.json(result);</span>
+<span class="nc" id="L197">        ctx.status(200);</span>
+<span class="nc" id="L198">    }   </span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

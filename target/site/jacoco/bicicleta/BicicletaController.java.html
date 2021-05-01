@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BicicletaController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">equipamento</a> &gt; <a href="index.source.html" class="el_package">bicicleta</a> &gt; <span class="el_source">BicicletaController.java</span></div><h1>BicicletaController.java</h1><pre class="source lang-java linenums">package bicicleta;
+
+import utils.utils;
+import app.ErrorResponse;
+import io.javalin.http.Context;
+import io.javalin.http.NotFoundResponse;
+import io.javalin.plugin.openapi.annotations.*;
+import bicicleta.Bicicleta.BicicletaStatus;
+import tranca.Tranca;
+import tranca.TrancaService;
+
+// This is a controller, it should contain logic related to client/server IO
+<span class="nc" id="L13">public class BicicletaController {</span>
+	
+    @OpenApi(
+            summary = &quot;Cadastrar Bicicleta&quot;,
+            operationId = &quot;cadastrarBicicleta&quot;,
+            path = &quot;/bicicleta&quot;,
+            method = HttpMethod.POST,
+            tags = {&quot;Bicicleta&quot;},
+            requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = NewBicicletaRequest.class)}),
+            responses = {
+                    @OpenApiResponse(status = &quot;200&quot;),
+                    @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void create(Context ctx) {
+<span class="nc" id="L28">        NewBicicletaRequest bicicleta = ctx.bodyAsClass(NewBicicletaRequest.class);</span>
+<span class="nc" id="L29">        BicicletaService.save(bicicleta.numero, bicicleta.marca, bicicleta.modelo, bicicleta.ano, BicicletaStatus.NOVA);</span>
+<span class="nc" id="L30">        ctx.status(200);</span>
+<span class="nc" id="L31">    }    	</span>
+
+    @SuppressWarnings(&quot;unused&quot;)
+	@OpenApi(
+            summary = &quot;Colocar uma bicicleta nova ou retornando de reparo de volta na rede de totens&quot;,
+            operationId = &quot;integrarNaRedeBicicleta&quot;,
+            path = &quot;/bicicleta/integrarNaRede&quot;,
+            method = HttpMethod.POST,
+            pathParams = {@OpenApiParam(name = &quot;integrarNaRede&quot;, type = Integer.class, description = &quot;integrar na rede a Bicicleta&quot;)},
+            tags = {&quot;Bicicleta&quot;},
+            requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Bicicleta.class)}),
+            responses = {
+                    @OpenApiResponse(status = &quot;200&quot;),
+                    @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void integrarNaRedeBicicleta(Context ctx) {
+<span class="nc" id="L48">        Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam(&quot;idBicicleta&quot;)));</span>
+<span class="nc" id="L49">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam(&quot;idTranca&quot;)));</span>
+      
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (bicicleta == null) {</span>
+<span class="nc" id="L52">            throw new NotFoundResponse(&quot;Dados Inválidos - Bicicleta nao encontrada&quot;);</span>
+        } 
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (tranca == null) {</span>
+<span class="nc" id="L55">            throw new NotFoundResponse(&quot;Dados Inválidos - Tranca nao encontrada&quot;);</span>
+        }
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if(bicicleta != BicicletaService.findById(utils.paramToInt(ctx.pathParam(&quot;idBicicleta&quot;)))){ //new bike</span>
+<span class="nc" id="L59">            NewBicicletaRequest newBicicleta = ctx.bodyAsClass(NewBicicletaRequest.class);</span>
+<span class="nc" id="L60">        } else { //old bike that returns to service</span>
+<span class="nc" id="L61">            BicicletaService.update(bicicleta.id, BicicletaStatus.DISPONIVEL);</span>
+        }
+<span class="nc" id="L63">        TrancaService.addBicicleta(tranca, bicicleta);</span>
+<span class="nc" id="L64">        ctx.status(200);         </span>
+<span class="nc" id="L65">    }</span>
+
+	@SuppressWarnings(&quot;unused&quot;)
+	@OpenApi(
+            summary = &quot;Retirar bicicleta para reparo ou aposentadoria&quot;,
+            operationId = &quot;RetirarDaRedeBicicleta&quot;,
+            path = &quot;/bicicleta/retirarDaRedeBicicleta&quot;,
+            method = HttpMethod.POST,
+            pathParams = {@OpenApiParam(name = &quot;RetirarDaRedeBike&quot;, type = Integer.class, description = &quot;retirar da rede a Bicicleta&quot;)},
+            tags = {&quot;Bicicleta&quot;},
+            requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Bicicleta.class)}),
+            responses = {
+                    @OpenApiResponse(status = &quot;200&quot;),
+                    @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void retirarDaRedeBicicleta(Context ctx) {
+<span class="nc" id="L82">        Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam(&quot;idBicicleta&quot;)));</span>
+<span class="nc" id="L83">        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam(&quot;idTranca&quot;)));</span>
+<span class="nc" id="L84">        BicicletaStatus status = utils.paramToBicicletaStatus(ctx.formParam(&quot;acao&quot;));</span>
+        
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (bicicleta == null) {</span>
+<span class="nc" id="L87">            throw new NotFoundResponse(&quot;Dados Inválidos - Bicicleta nao encontrada&quot;);</span>
+        } 
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (tranca == null) {</span>
+<span class="nc" id="L90">            throw new NotFoundResponse(&quot;Dados Inválidos - Tranca nao encontrada&quot;);</span>
+        }
+
+<span class="nc" id="L93">        BicicletaService.setStatus(bicicleta, BicicletaStatus.APOSENTADA);</span>
+
+<span class="nc" id="L95">        TrancaService.removeBicicleta(tranca);</span>
+<span class="nc" id="L96">        ctx.status(200);</span>
+
+<span class="nc" id="L98">    }    </span>
+    
+	@OpenApi(
+            summary = &quot;Recuperar Bicicletas Cadastradas&quot;,
+            operationId = &quot;recuperarBicicleta&quot;,
+            path = &quot;/bicicleta&quot;,
+            method = HttpMethod.GET,
+            tags = {&quot;Bicicleta&quot;},
+            responses = {
+                    @OpenApiResponse(status = &quot;200&quot;, content = {@OpenApiContent(from = Bicicleta[].class)})
+            }
+    )
+    public static void getAll(Context ctx) {
+<span class="nc" id="L111">        ctx.json(BicicletaService.getAll());</span>
+<span class="nc" id="L112">    }</span>
+	
+    @OpenApi(
+            summary = &quot;Obter Bicicleta&quot;,
+            operationId = &quot;getBicicletaId&quot;,
+            path = &quot;/bicicleta/:idBicicleta&quot;,
+            method = HttpMethod.GET,
+            pathParams = {@OpenApiParam(name = &quot;bicicletaId&quot;, type = Integer.class, description = &quot;Bicicleta Id&quot;)},
+            tags = {&quot;Bicicleta&quot;},
+            responses = {
+                    @OpenApiResponse(status = &quot;200&quot;, content = {@OpenApiContent(from = Bicicleta.class)}),
+                    @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+            }
+    )
+    public static void getOne(Context ctx) {
+<span class="nc" id="L127">        Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam(&quot;idBicicleta&quot;)));</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (bicicleta == null) {</span>
+<span class="nc" id="L129">            throw new NotFoundResponse(&quot;Bicicleta nao encontrada&quot;);</span>
+        } else {
+<span class="nc" id="L131">            ctx.json(bicicleta);</span>
+        }
+<span class="nc" id="L133">    }</span>
+
+    @OpenApi(
+            summary = &quot;Editar bicicleta&quot;,
+            operationId = &quot;updateBicicletaId&quot;,
+            path = &quot;/bicicleta/:idBicicleta&quot;,
+            method = HttpMethod.PUT,
+            pathParams = {@OpenApiParam(name = &quot;bicicletaId&quot;, type = Integer.class, description = &quot;Bicicleta Id&quot;)},
+            tags = {&quot;Bicicleta&quot;},
+            requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = NewBicicletaRequest.class)}),
+            responses = {
+                    @OpenApiResponse(status = &quot;204&quot;),
+                    @OpenApiResponse(status = &quot;400&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+                    @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void update(Context ctx) {
+<span class="nc" id="L150">        Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam(&quot;idBicicleta&quot;)));</span>
+<span class="nc" id="L151">        BicicletaStatus status = BicicletaStatus.EM_REPARO;</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (bicicleta == null) {</span>
+<span class="nc" id="L153">            throw new NotFoundResponse(&quot;Bicicleta nao encontrada&quot;);</span>
+        } else {
+<span class="nc" id="L155">            NewBicicletaRequest bicicletaRequest = ctx.bodyAsClass(NewBicicletaRequest.class);</span>
+<span class="nc" id="L156">            BicicletaService.update(bicicleta, bicicletaRequest.numero, bicicletaRequest.marca, bicicletaRequest.modelo, bicicletaRequest.ano, status);</span>
+<span class="nc" id="L157">            ctx.status(204);</span>
+        }
+<span class="nc" id="L159">    }</span>
+
+    @OpenApi(
+            summary = &quot;Deletar bicicleta&quot;,
+            operationId = &quot;deleteBicicletaId&quot;,
+            path = &quot;/bicicleta/:idBicicleta&quot;,
+            method = HttpMethod.DELETE,
+            pathParams = {@OpenApiParam(name = &quot;bicicletaId&quot;, type = Integer.class, description = &quot;Bicicleta Id&quot;)},
+            tags = {&quot;Tranca&quot;},
+            responses = {
+                    @OpenApiResponse(status = &quot;204&quot;),
+                    @OpenApiResponse(status = &quot;400&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+                    @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void delete(Context ctx) {
+<span class="nc" id="L175">        Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam(&quot;idBicicleta&quot;)));</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (bicicleta == null) {</span>
+<span class="nc" id="L177">            throw new NotFoundResponse(&quot;Bicicleta nao encontrada&quot;);</span>
+        } else {
+<span class="nc" id="L179">            BicicletaService.delete(bicicleta.id);</span>
+<span class="nc" id="L180">            ctx.status(204);</span>
+        }
+<span class="nc" id="L182">    }</span>
+
+    @OpenApi(
+            summary = &quot;Alterar status da bicicleta&quot;,
+            operationId = &quot;alterarStatusBicicleta&quot;,
+            path = &quot;/bicicleta/:idBicicleta/status/:acao&quot;,
+            method = HttpMethod.POST,
+            pathParams = {@OpenApiParam(name = &quot;bicicletaId&quot;, type = Integer.class, description = &quot;Bicicleta Id&quot;)},
+            tags = {&quot;Bicicleta&quot;},
+            responses = {
+                    @OpenApiResponse(status = &quot;204&quot;),
+                    @OpenApiResponse(status = &quot;404&quot;, content = {@OpenApiContent(from = ErrorResponse.class)}),
+                    @OpenApiResponse(status = &quot;422&quot;, content = {@OpenApiContent(from = ErrorResponse.class)})
+            }
+    )
+    public static void alterarStatusBicicleta(Context ctx) {
+<span class="nc" id="L198">        Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam(&quot;idBicicleta&quot;)));</span>
+
+<span class="nc" id="L200">        BicicletaService.setStatus(bicicleta, BicicletaStatus.DISPONIVEL);</span>
+
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        if (bicicleta == null) {</span>
+<span class="nc" id="L203">            throw new NotFoundResponse(&quot;Bicicleta nao encontrada&quot;);</span>
+        } else {
+<span class="nc" id="L205">            BicicletaService.setStatus(bicicleta, BicicletaStatus.DISPONIVEL);</span>
+<span class="nc" id="L206">            ctx.status(204);</span>
+        }
+<span class="nc" id="L208">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

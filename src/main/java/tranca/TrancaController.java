@@ -39,7 +39,7 @@ public class TrancaController {
         method = HttpMethod.POST,
         pathParams = {@OpenApiParam(name = "integrarNaRede", type = Integer.class, description = "integrar na rede a Tranca")},
         tags = {"Tranca"},
-        requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Bicicleta.class)}),
+        requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = Tranca.class)}),
         responses = {
                 @OpenApiResponse(status = "200"),
                 @OpenApiResponse(status = "422", content = {@OpenApiContent(from = ErrorResponse.class)})
@@ -74,9 +74,9 @@ public class TrancaController {
     )
     public static void retirarDaRedeTranca(Context ctx) {
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));
-        // FIX ME: get status through POST params
-        TrancaStatus status = TrancaStatus.APOSENTADA;
-        
+
+        TrancaService.setStatus(tranca, TrancaStatus.APOSENTADA);
+
         if (tranca == null)
             throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
         
@@ -86,7 +86,7 @@ public class TrancaController {
         if (tranca.getLocalizacao() != null)
             throw new NotFoundResponse("Remova a tranca de seu totem atual antes de retirá-la do sistema.");
         
-        TrancaService.setStatus(tranca, status);
+        TrancaService.setStatus(tranca, TrancaStatus.OCUPADA);
         ctx.status(200);
     }
 
@@ -142,13 +142,14 @@ public class TrancaController {
     )
     public static void update(Context ctx) {
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
-        // FIX ME: pegar status via POST
-        TrancaStatus status = TrancaStatus.EM_REPARO;
+
+        TrancaService.setStatus(tranca, TrancaStatus.OCUPADA);
+
         if (tranca == null)
             throw new NotFoundResponse("Tranca nao encontrada");
         
         NewTrancaRequest trancaRequest = ctx.bodyAsClass(NewTrancaRequest.class);
-        TrancaService.update(tranca, trancaRequest.numero, trancaRequest.localizacao, trancaRequest.anoDeFabricacao, trancaRequest.modelo, status);
+        TrancaService.update(tranca, trancaRequest.numero, trancaRequest.localizacao, trancaRequest.anoDeFabricacao, trancaRequest.modelo, tranca.getStatus());
         ctx.status(204);
     }
 
@@ -190,12 +191,13 @@ public class TrancaController {
     )
     public static void alterarStatusTranca(Context ctx) {
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.pathParam("idTranca")));
-        // FIX ME: get status through POST body
-        TrancaStatus status = TrancaStatus.LIVRE;
+
+        TrancaService.setStatus(tranca, TrancaStatus.LIVRE);
+
         if (tranca == null) 
             throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
 
-        TrancaService.setStatus(tranca, status);
+        TrancaService.setStatus(tranca, TrancaStatus.LIVRE);
         ctx.status(200);
     }  
 

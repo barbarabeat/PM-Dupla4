@@ -11,20 +11,6 @@ import tranca.TrancaService;
 
 // This is a controller, it should contain logic related to client/server IO
 public class BicicletaController {
-    
-	@OpenApi(
-            summary = "Recuperar Bicicletas Cadastradas",
-            operationId = "recuperarBicicleta",
-            path = "/bicicleta",
-            method = HttpMethod.GET,
-            tags = {"Bicicleta"},
-            responses = {
-                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = Bicicleta[].class)})
-            }
-    )
-    public static void getAll(Context ctx) {
-        ctx.json(BicicletaService.getAll());
-    }
 	
     @OpenApi(
             summary = "Cadastrar Bicicleta",
@@ -40,9 +26,9 @@ public class BicicletaController {
     )
     public static void create(Context ctx) {
         NewBicicletaRequest bicicleta = ctx.bodyAsClass(NewBicicletaRequest.class);
-        BicicletaService.save(bicicleta.numero, bicicleta.marca, bicicleta.modelo, bicicleta.ano);
+        BicicletaService.save(bicicleta.numero, bicicleta.marca, bicicleta.modelo, bicicleta.ano, BicicletaStatus.NOVA);
         ctx.status(200);
-    }
+    }    	
 
     @SuppressWarnings("unused")
 	@OpenApi(
@@ -104,13 +90,27 @@ public class BicicletaController {
             throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
         }
 
-        /* Identify purpose for removal and call BicicletaService.update with appropriate status */
-        
+        BicicletaService.setStatus(bicicleta, BicicletaStatus.APOSENTADA);
+
         TrancaService.removeBicicleta(tranca);
         ctx.status(200);
 
     }    
     
+	@OpenApi(
+            summary = "Recuperar Bicicletas Cadastradas",
+            operationId = "recuperarBicicleta",
+            path = "/bicicleta",
+            method = HttpMethod.GET,
+            tags = {"Bicicleta"},
+            responses = {
+                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = Bicicleta[].class)})
+            }
+    )
+    public static void getAll(Context ctx) {
+        ctx.json(BicicletaService.getAll());
+    }
+	
     @OpenApi(
             summary = "Obter Bicicleta",
             operationId = "getBicicletaId",
@@ -146,13 +146,14 @@ public class BicicletaController {
                     @OpenApiResponse(status = "404", content = {@OpenApiContent(from = ErrorResponse.class)})
             }
     )
-    public static void updateBicicletaId(Context ctx) {
+    public static void update(Context ctx) {
         Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam("idBicicleta")));
+        BicicletaStatus status = BicicletaStatus.EM_REPARO;
         if (bicicleta == null) {
             throw new NotFoundResponse("Bicicleta nao encontrada");
         } else {
-            NewBicicletaRequest newBicicleta = ctx.bodyAsClass(NewBicicletaRequest.class);
-            BicicletaService.update(bicicleta.id, newBicicleta.numero, newBicicleta.marca, newBicicleta.modelo, newBicicleta.ano, newBicicleta.status);
+            NewBicicletaRequest bicicletaRequest = ctx.bodyAsClass(NewBicicletaRequest.class);
+            BicicletaService.update(bicicleta, bicicletaRequest.numero, bicicletaRequest.marca, bicicletaRequest.modelo, bicicletaRequest.ano, status);
             ctx.status(204);
         }
     }
@@ -195,11 +196,13 @@ public class BicicletaController {
     )
     public static void alterarStatusBicicleta(Context ctx) {
         Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam("idBicicleta")));
-        // Status newStatus;
+
+        BicicletaService.setStatus(bicicleta, BicicletaStatus.DISPONIVEL);
+
         if (bicicleta == null) {
             throw new NotFoundResponse("Bicicleta nao encontrada");
         } else {
-            BicicletaService.update(bicicleta.id, bicicleta.getStatus());
+            BicicletaService.setStatus(bicicleta, BicicletaStatus.DISPONIVEL);
             ctx.status(204);
         }
     }

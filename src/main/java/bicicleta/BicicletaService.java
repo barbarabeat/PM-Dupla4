@@ -1,6 +1,7 @@
 package bicicleta;
 
 import bicicleta.Bicicleta.BicicletaStatus;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,26 +20,35 @@ public class BicicletaService {
         lastId = new AtomicInteger(bicicleta.size());
     }
 
-    public static void save(int numero, String marca, String modelo, String ano) {
+    public static void save(int numero, String marca, String modelo, String ano, BicicletaStatus status) {
         int id = lastId.incrementAndGet();
-        bicicleta.put(id , new Bicicleta(id, numero, marca, modelo, ano));
+        Bicicleta b = new Bicicleta(id,numero,marca,modelo,ano);
+        b.setStatus(status);
+        bicicleta.put(id, b);
     }
 
     public static Collection<Bicicleta> getAll() {
         return bicicleta.values();
     }
 
+    public static void reintegrarAoSistema(Bicicleta b) {
+        b.setStatus(BicicletaStatus.DISPONIVEL);
+    }
+
+    public static void setStatus(Bicicleta b, BicicletaStatus s) {
+        b.setStatus(s);
+    }
+    
     public static void update(int idBicicleta, BicicletaStatus status) {
     	
         Bicicleta b = bicicleta.get(idBicicleta);
         b.setStatus(status);
     }
 
-    public static void update(int idBicicleta, int numero, 
+    public static void update(Bicicleta b, int numero, 
                             String marca, String modelo, String ano,
                             BicicletaStatus status) {
         
-        Bicicleta b = bicicleta.get(idBicicleta);
         b.setNumero(numero);
         b.setMarca(marca);
         b.setModelo(modelo);

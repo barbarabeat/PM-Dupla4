@@ -43,7 +43,6 @@ public class Tranca {
 	}
 
 	public Bicicleta getBicicleta() {
-		// FIX ME: return read-only
 		return bicicleta;
 	}
 

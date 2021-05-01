@@ -18,7 +18,6 @@ public class Totem {
     }
 
     public HashSet<Tranca> getTrancas() {
-        // FIX ME: return read-only
         return this.trancas;
     }
 

@@ -20,24 +20,15 @@ public class App {
             config.registerPlugin(getConfiguredOpenApiPlugin());
             config.defaultContentType = "application/json";
         }).routes(() -> {
-            path("users", () -> {
-                get(UserController::getAll);
-                post(UserController::create);
-                path(":userId", () -> {
-                    get(UserController::getOne);
-                    patch(UserController::update);
-                    delete(UserController::delete);
-                });
-            });
             path("bicicleta", () -> {
                 get(BicicletaController::getAll);
                 post(BicicletaController::create);
                 path(":idBicicleta", () -> {
                     get(BicicletaController::getOne);
-                    put(BicicletaController::updateBicicletaId);
+                    put(BicicletaController::update);
                     delete(BicicletaController::delete);
-                    path("bicicleta", () -> {
-                        path(":status", () -> {
+                    path("status", () -> {
+                        path(":acao", () -> {
                             post(BicicletaController::alterarStatusBicicleta);                       	
                         });
                     });
@@ -58,6 +49,10 @@ public class App {
                     delete(TotemController::delete);
                     path("trancas", () -> {
                         post(TotemController::adicionarTranca);
+                        get(TotemController::listarTrancasDoTotem);
+                        path(":idTranca", () -> {
+                        	post(TotemController::removerTranca);
+                        });
                     });
                 });
             });
@@ -84,7 +79,7 @@ public class App {
                     post(TrancaController::retirarDaRedeTranca);
                 });
             });
-        }).start(Integer.valueOf(System.getenv("PORT")));
+        }).start(7002);//Integer.valueOf(System.getenv("PORT")));
 
         System.out.println("Check out ReDoc docs at http://localhost:7002/redoc");
         System.out.println("Check out Swagger UI docs at http://localhost:7002/swagger-ui");

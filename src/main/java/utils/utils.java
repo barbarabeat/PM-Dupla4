@@ -8,15 +8,12 @@ public class utils {
     }
 
     public static BicicletaStatus paramToBicicletaStatus(String param) {
-        // TODO: return params according to string value
-
         return BicicletaStatus.APOSENTADA;
     }
 
     public static TrancaStatus paramToTrancaStatus(String param) {
-        // TODO: return params according to string value
-
-        return TrancaStatus.APOSENTADA;
+    	return TrancaStatus.valueOf(param);
+    	
     }
 
 }

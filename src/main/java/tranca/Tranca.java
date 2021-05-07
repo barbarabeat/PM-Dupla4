@@ -22,7 +22,8 @@ public class Tranca {
     	this.localizacao = localizacao;
     	this.anoDeFabricacao = anoDeFabricacao;
         this.modelo = modelo;
-    }
+		this.status = TrancaStatus.NOVA;
+	}
 
 	public void setBicicleta(Bicicleta b) {
 		this.bicicleta = b;

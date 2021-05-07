@@ -78,7 +78,7 @@ public class App {
                     post(TrancaController::retirarDaRedeTranca);
                 });
             });
-        }).start(Integer.valueOf(System.getenv("PORT")));
+        }).start(getHerokuAssignedPort());
 
         System.out.println("Check out ReDoc docs at http://localhost:7002/redoc");
         System.out.println("Check out Swagger UI docs at http://localhost:7002/swagger-ui");
@@ -106,6 +106,14 @@ public class App {
                     doc.json("503", ErrorResponse.class);
                 });
         return new OpenApiPlugin(options);
+    }
+
+    private static int getHerokuAssignedPort() {
+        String herokuPort = System.getenv("PORT");
+        if (herokuPort != null) {
+          return Integer.parseInt(herokuPort);
+        }
+        return 7000;
     }
 
 }

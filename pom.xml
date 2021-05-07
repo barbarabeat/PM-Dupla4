@@ -5,12 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.programacao-modular.dupla4</groupId>
-  <artifactId>equipamento</artifactId>
+  <artifactId>d4-equipamento</artifactId>
   <version>1.0</version>
-
-  <name>equipamento</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  
+  <name>d4-equipamento</name>
+  <url>https://d4-equipamento.herokuapp.com/</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,86 +39,52 @@
      </dependency>
   </dependencies>
 
-  <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
-      <plugins>
-        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+<build>
+    <plugins>
         <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>2.3.2</version>
             <configuration>
-                <skipTests>false</skipTests>
-                <testFailureIgnore>true</testFailureIgnore>
-                <forkMode>once</forkMode>
-            </configuration>          
-        </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>io.javalin.Javalin.App</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
         </plugin>
         <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>single</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <descriptorRefs>
+                    <!-- This tells Maven to include all dependencies -->
+                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                </descriptorRefs>
+                <archive>
+                    <manifest>
+                        <mainClass>Main</mainClass>
+                    </manifest>
+                </archive>
+            </configuration>
         </plugin>
-        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
         <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.7.1</version>
+          <groupId>com.heroku.sdk</groupId>
+          <artifactId>heroku-maven-plugin</artifactId>
+          <version>3.0.3</version>
+          <configuration>
+              <jdkVersion>1.8</jdkVersion>
+              <appName>d4-equipamento</appName>
+              <processTypes>
+                <!-- Tell Heroku how to launch your application -->
+                <web>java $JAVA_OPTS -cp target/classes:target/dependency/* app.App</web>
+              </processTypes>
+          </configuration>
         </plugin>
-        <plugin>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
-      <plugin>
-        <groupId>org.sonarsource.scanner.maven</groupId>
-        <artifactId>sonar-maven-plugin</artifactId>
-        <version>3.7.0.1746</version>
-      </plugin>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.7.5.201505241946</version>
-	    <executions>
-	      <execution>
-	        <id>default-prepare-agent</id>
-	        <goals>
-	          <goal>prepare-agent</goal>
-	        </goals>
-	      </execution>
-	      <execution>
-	        <id>jacoco-site</id>
-	        <phase>post-integration-test</phase>
-	        <goals>
-	          <goal>report</goal>
-	        </goals>
-	      </execution>
-	    </executions>        
-      </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
+    </plugins>
+</build>
 </project>

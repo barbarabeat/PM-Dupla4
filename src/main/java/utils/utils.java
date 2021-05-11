@@ -8,7 +8,7 @@ public class utils {
     }
 
     public static BicicletaStatus paramToBicicletaStatus(String param) {
-        return BicicletaStatus.APOSENTADA;
+        return BicicletaStatus.valueOf(param);
     }
 
     public static TrancaStatus paramToTrancaStatus(String param) {

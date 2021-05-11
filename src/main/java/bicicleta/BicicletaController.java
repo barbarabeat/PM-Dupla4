@@ -1,5 +1,6 @@
 package bicicleta;
 
+import utils.Email;
 import utils.utils;
 import app.ErrorResponse;
 import io.javalin.http.Context;
@@ -8,6 +9,14 @@ import io.javalin.plugin.openapi.annotations.*;
 import bicicleta.Bicicleta.BicicletaStatus;
 import tranca.Tranca;
 import tranca.TrancaService;
+
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
+import kong.unirest.json.JSONObject;
+
+
 
 // This is a controller, it should contain logic related to client/server IO
 public class BicicletaController {
@@ -47,7 +56,8 @@ public class BicicletaController {
     public static void integrarNaRedeBicicleta(Context ctx) {
         Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam("idBicicleta")));
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));
-      
+        String idFuncionario = ctx.formParam("idFuncionario");
+        
         if (bicicleta == null) {
             throw new NotFoundResponse("Dados Inválidos - Bicicleta nao encontrada");
         } 
@@ -57,8 +67,18 @@ public class BicicletaController {
 
         if(bicicleta != BicicletaService.findById(utils.paramToInt(ctx.pathParam("idBicicleta")))){ //new bike
             NewBicicletaRequest newBicicleta = ctx.bodyAsClass(NewBicicletaRequest.class);
-        } else { //old bike that returns to service
+            
+        } else { // Integracao: Incluir na rede uma bicicleta reparada e enviar email para o reparador
+        	
             BicicletaService.update(bicicleta.id, BicicletaStatus.DISPONIVEL);
+            
+        	HttpResponse<JsonNode> funcionario = Unirest.get("https://grupo3-aluguel.herokuapp.com/funcionario/{idFuncionario}")
+        			     .header("accept", "application/json")
+        			     .routeParam("idFuncionario", idFuncionario)
+        			     .asJson();
+        	Email email = (Email) funcionario.getBody().getObject().get("email");
+        	Email.sendEmail(email, "Bicicleta integrada na rede com sucesso!");
+            
         }
         TrancaService.addBicicleta(tranca, bicicleta);
         ctx.status(200);         
@@ -82,6 +102,8 @@ public class BicicletaController {
         Bicicleta bicicleta = BicicletaService.findById(utils.paramToInt(ctx.pathParam("idBicicleta")));
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));
         BicicletaStatus status = utils.paramToBicicletaStatus(ctx.formParam("acao"));
+        BicicletaStatus statusToBe = utils.paramToBicicletaStatus(ctx.formParam("idBicicletaToBe"));
+        String idFuncionario = ctx.formParam("idFuncionario");
         
         if (bicicleta == null) {
             throw new NotFoundResponse("Dados Inválidos - Bicicleta nao encontrada");
@@ -89,12 +111,29 @@ public class BicicletaController {
         if (tranca == null) {
             throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
         }
-
-        BicicletaService.setStatus(bicicleta, BicicletaStatus.APOSENTADA);
-
-        TrancaService.removeBicicleta(tranca);
-        ctx.status(200);
-
+        if(status != BicicletaStatus.REPARO_SOLICITADO) {
+        	 throw new NotFoundResponse("Bicicleta não está com status 'EM_REPARO'");
+        }
+     // Integracao: Excluir da rede uma bicicleta reparada e enviar email para o reparador
+        
+        else {
+        	if(statusToBe == BicicletaStatus.APOSENTADA) {
+                BicicletaService.setStatus(bicicleta, BicicletaStatus.APOSENTADA);	
+        	}else {
+                BicicletaService.setStatus(bicicleta, BicicletaStatus.EM_REPARO);
+        	}
+        	
+            BicicletaService.update(bicicleta.id, BicicletaStatus.DISPONIVEL);
+            
+        	HttpResponse<JsonNode> funcionario = Unirest.get("https://grupo3-aluguel.herokuapp.com/funcionario/{idFuncionario}")
+        			     .header("accept", "application/json")
+        			     .routeParam("idFuncionario", idFuncionario)
+        			     .asJson();
+        	Email email = (Email) funcionario.getBody().getObject().get("email");
+        	Email.sendEmail(email, "Bicicleta removida da rede com sucesso!");  
+            TrancaService.removeBicicleta(tranca);
+            ctx.status(200);        	
+        } 
     }    
     
 	@OpenApi(

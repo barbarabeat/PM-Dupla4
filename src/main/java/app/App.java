@@ -80,7 +80,6 @@ public class App {
             });
         }).start(getHerokuAssignedPort());
 
-        System.out.println("Check out ReDoc docs at http://localhost:7002/redoc");
         System.out.println("Check out Swagger UI docs at http://localhost:7002/swagger-ui");
     
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -100,7 +99,7 @@ public class App {
                 .activateAnnotationScanningFor("io.javalin.example.java")
                 .path("/swagger-docs") // endpoint for OpenAPI json
                 .swagger(new SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
-                .reDoc(new ReDocOptions("/redoc")) // endpoint for redoc
+              //  .reDoc(new ReDocOptions("/redoc")) // endpoint for redoc
                 .defaultDocumentation(doc -> {
                     doc.json("500", ErrorResponse.class);
                     doc.json("503", ErrorResponse.class);

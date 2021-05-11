@@ -1,7 +1,7 @@
 package bicicleta;
 
 public class Bicicleta {
-	public enum BicicletaStatus { DISPONIVEL, NOVA, EM_USO, EM_REPARO, APOSENTADA };
+	public enum BicicletaStatus { DISPONIVEL, NOVA, EM_USO,REPARO_SOLICITADO, EM_REPARO, APOSENTADA };
 
 	public int id;
     public int numero;

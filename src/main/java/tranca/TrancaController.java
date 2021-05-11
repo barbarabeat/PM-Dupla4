@@ -1,13 +1,27 @@
 package tranca;
 
+import utils.Email;
 import utils.utils;
+
+import java.sql.Array;
+
+import com.google.gson.JsonObject;
+
 import app.ErrorResponse;
 import tranca.Tranca.TrancaStatus;
 import bicicleta.Bicicleta;
+import bicicleta.Bicicleta.BicicletaStatus;
 import bicicleta.BicicletaController;
+import bicicleta.BicicletaService;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.plugin.openapi.annotations.*;
+
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
+import kong.unirest.json.JSONObject;
 
 
 // This is a controller, it should contain logic related to client/server IO
@@ -46,8 +60,15 @@ public class TrancaController {
         }
     )
     public static void integrarNaRedeTranca(Context ctx) {
-        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));  
+        Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));
+        TrancaStatus status = utils.paramToTrancaStatus(ctx.formParam("acao"));
+        String idFuncionario = ctx.formParam("idFuncionario");
         
+        if(status != TrancaStatus.NOVA || status !=  TrancaStatus.EM_REPARO) {
+       	 throw new NotFoundResponse("Tranca não está com status 'NOVA' ou 'EM_REPARO'");
+       } else {
+    	   
+        //Integracao: Incluir na rede uma Tranca e enviar email para o reparador
         if (tranca == null) { // Nova tranca sendo adicionada
             NewTrancaRequest newTranca = ctx.bodyAsClass(NewTrancaRequest.class);
             TrancaService.save(newTranca.numero, null, newTranca.anoDeFabricacao, newTranca.modelo, TrancaStatus.NOVA);
@@ -55,7 +76,14 @@ public class TrancaController {
             TrancaService.reintegrarAoSistema(tranca);
         }
         
+    	HttpResponse<JsonNode> funcionario = Unirest.get("https://grupo3-aluguel.herokuapp.com/funcionario/{idFuncionario}")
+			     .header("accept", "application/json")
+			     .routeParam("idFuncionario", idFuncionario)
+			     .asJson();
+    	Email email = (Email) funcionario.getBody().getObject().get("email");
+    	Email.sendEmail(email, "Tranca integrada na rede com sucesso!");
         ctx.status(200); 
+       }
     }
 
    	@SuppressWarnings("unused")
@@ -74,8 +102,13 @@ public class TrancaController {
     )
     public static void retirarDaRedeTranca(Context ctx) {
         Tranca tranca = TrancaService.findById(utils.paramToInt(ctx.formParam("idTranca")));
-
-        TrancaService.setStatus(tranca, TrancaStatus.APOSENTADA);
+        TrancaStatus status = utils.paramToTrancaStatus(ctx.formParam("acao"));
+        TrancaStatus statusToBe = utils.paramToTrancaStatus(ctx.formParam("idTrancaToBe"));
+        String idFuncionario = ctx.formParam("idFuncionario");
+        
+        if(status != TrancaStatus.APOSENTADA || status !=  TrancaStatus.EM_REPARO) {
+          	 throw new NotFoundResponse("Tranca não está com status 'Aposentada' ou 'EM_REPARO'");
+          }
 
         if (tranca == null)
             throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
@@ -83,11 +116,26 @@ public class TrancaController {
         if (tranca.getStatus() == TrancaStatus.OCUPADA)
             throw new NotFoundResponse("Desocupe a tranca antes de retirá-la do sistema.");
         
-        if (tranca.getLocalizacao() != null)
-            throw new NotFoundResponse("Remova a tranca de seu totem atual antes de retirá-la do sistema.");
-        
-        TrancaService.setStatus(tranca, TrancaStatus.OCUPADA);
-        ctx.status(200);
+        if (tranca.getLocalizacao() == null)
+            throw new NotFoundResponse("Coloque a tranca no totem antes de retirá-la do sistema.");
+
+        else {
+        	
+            //Integracao: Remover da rede uma Tranca e enviar email para o reparador
+        	if(statusToBe == TrancaStatus.APOSENTADA) {
+        		TrancaService.setStatus(tranca, TrancaStatus.APOSENTADA);	
+        	} else {
+        		TrancaService.setStatus(tranca, TrancaStatus.EM_REPARO);
+        	}
+            
+        	HttpResponse<JsonNode> funcionario = Unirest.get("https://grupo3-aluguel.herokuapp.com/funcionario/{idFuncionario}")
+        			     .header("accept", "application/json")
+        			     .routeParam("idFuncionario", idFuncionario)
+        			     .asJson();
+        	Email email = (Email) funcionario.getBody().getObject().get("email");
+        	Email.sendEmail(email, "Tranca removida da rede com sucesso!");  
+            ctx.status(200);       	
+        }
     }
 
     @OpenApi(
@@ -196,8 +244,9 @@ public class TrancaController {
 
         if (tranca == null) 
             throw new NotFoundResponse("Dados Inválidos - Tranca nao encontrada");
-
-        TrancaService.setStatus(tranca, TrancaStatus.LIVRE);
+        if (BicicletaStatus.DISPONIVEL == null) {
+            TrancaService.setStatus(tranca, TrancaStatus.OCUPADA);        	
+        }  
         ctx.status(200);
     }  
 
@@ -223,5 +272,6 @@ public class TrancaController {
         BicicletaController.getOne(ctx);
         ctx.status(200);
 
-    }
+    }  
+
 }

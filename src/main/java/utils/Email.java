@@ -49,15 +49,14 @@ public class Email {
     "javax.net.ssl.SSLSocketFactory");
     props.put("mail.smtp.auth", "true");
     props.put("mail.smtp.port", "465");
-
-    Session session = Session.getDefaultInstance(props,
-      new javax.mail.Authenticator() {
-           protected PasswordAuthentication getPasswordAuthentication()
-           {
-                 return new PasswordAuthentication("seuemail@gmail.com",
-                 "suasenha123");
-           }
-      });
+    props.put("mail.smtp.ssl.checkserveridentity", true); // Compliant
+    
+    Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+      protected PasswordAuthentication getPasswordAuthentication() {
+        return new PasswordAuthentication("username@gmail.com", "password");
+      }
+    });
+    
 
     /** Ativa Debug para sessão */
     session.setDebug(true);

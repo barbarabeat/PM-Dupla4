@@ -1,5 +1,8 @@
 package bicicleta;
 
+import lombok.Data;
+
+@Data
 public class Bicicleta {
 	public enum BicicletaStatus { DISPONIVEL, NOVA, EM_USO,REPARO_SOLICITADO, EM_REPARO, APOSENTADA };
 

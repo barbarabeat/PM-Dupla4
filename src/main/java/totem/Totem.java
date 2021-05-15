@@ -1,7 +1,9 @@
 package totem;
 import java.util.HashSet;
 import tranca.Tranca;
+import lombok.Data;
 
+@Data
 public class Totem {
     public int id;
     public String localizacao;
@@ -32,4 +34,13 @@ public class Totem {
     public void setLocal(String localizacao) {
         this.localizacao = localizacao;
     }
+    
+	public int getId() {
+		return id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+		
+	}
 }

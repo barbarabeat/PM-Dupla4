@@ -1,7 +1,9 @@
 package tranca;
 
 import bicicleta.Bicicleta;
+import lombok.Data;
 
+@Data
 public class Tranca {
 	public enum TrancaStatus { LIVRE, OCUPADA, NOVA, APOSENTADA, EM_REPARO }
 

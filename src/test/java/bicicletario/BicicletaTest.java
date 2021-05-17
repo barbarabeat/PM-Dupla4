@@ -32,7 +32,7 @@ public class BicicletaTest {
 
     @Test
     public void unirestTest() {
-        app.startApp(7000);
+        app.startApp();
         HttpResponse response = Unirest.get("http://localhost:7000/bicicleta").asString();
         assertEquals(200, response.getStatus());
         app.stop();

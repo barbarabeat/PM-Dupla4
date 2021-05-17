@@ -18,10 +18,10 @@ public class App {
 		  });
 
 	public static void main(String[] args) {
-		startApp(getHerokuAssignedPort());
+		startApp();
 	}
 
-    public static void startApp(int port) {
+    public static void startApp() {
        app.create().routes(() -> {
             path("bicicleta", () -> {
                 get(BicicletaController::getAll);

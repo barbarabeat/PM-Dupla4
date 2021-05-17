@@ -14,6 +14,7 @@ import tranca.TrancaController;
 
 public class App {
 	  private static Javalin app = Javalin.create(config -> {
+		    config.registerPlugin(getConfiguredOpenApiPlugin());
 		    config.defaultContentType = "application/json";
 		  });
 

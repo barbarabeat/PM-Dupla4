@@ -41,15 +41,9 @@
     <property name="java.class.path" value="C:\Users\barbarab\.p2\pool\plugins\org.eclipse.m2e.maven.runtime_1.16.0.20210129-0849\jars\plexus-classworlds-2.6.0.jar"/>
     <property name="java.vm.specification.version" value="14"/>
     <property name="sun.arch.data.model" value="64"/>
-<<<<<<< HEAD
     <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -B package"/>
     <property name="java.home" value="C:\Program Files\Java\jdk-14.0.1"/>
     <property name="user.language" value="pt"/>
-=======
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher test"/>
-    <property name="java.home" value="/usr/lib/jvm/java-11-openjdk-amd64"/>
-    <property name="user.language" value="en"/>
->>>>>>> 6dcee9f6241f45ddbe133eebacd608549919c7e7
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
     <property name="java.version" value="14.0.1"/>
@@ -62,9 +56,5 @@
     <property name="sun.cpu.endian" value="little"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-<<<<<<< HEAD
-  <testcase classname="bicicletario.AppTest" name="shouldAnswerWithTrue" time="0.005"/>
-=======
   <testcase classname="bicicletario.AppTest" name="shouldAnswerWithTrue" time="0.002"/>
->>>>>>> 6dcee9f6241f45ddbe133eebacd608549919c7e7
 </testsuite>

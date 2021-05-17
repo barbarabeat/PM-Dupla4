@@ -30,7 +30,7 @@ public class TotemTest {
     @Test
     public void unirestTest() {
         //app.startApp(7000);
-        HttpResponse response = Unirest.get("http://localhost:7000/totem").asString();
+        HttpResponse response = Unirest.get("https://d4-equipamento.herokuapp.com/totem").asString();
         assertEquals(200, response.getStatus());
         app.stop();
     }

@@ -40,12 +40,12 @@
 	 <dependency>
 	    <groupId>com.konghq</groupId>
 	    <artifactId>unirest-java</artifactId>
-	    <version>3.11.09</version>
+	    <version>3.11.11</version>
 	 </dependency>
      <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>            
+            <version>1.18.20</version>            
             <optional>true</optional>
 	</dependency>
   </dependencies>

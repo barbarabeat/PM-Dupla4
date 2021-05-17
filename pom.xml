@@ -37,12 +37,7 @@
          <artifactId>javalin-bundle</artifactId>
          <version>3.13.5</version>
      </dependency>
-	 <dependency>
-	  		<groupId>junit</groupId>
-	  		<artifactId>junit</artifactId>
-	 	 <version>4.13.2</version>
-		</dependency>
-		<dependency>
+    <dependency>
 	    <groupId>com.konghq</groupId>
 	    <artifactId>unirest-java</artifactId>
 	    <version>3.11.09</version>

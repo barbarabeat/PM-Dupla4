@@ -2,7 +2,9 @@ package bicicletario;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import app.App;
 import bicicleta.Bicicleta;
 
 
@@ -25,5 +27,15 @@ public class BicicletaTest {
 	   bicicleta.setId(testId);
 	    assertEquals(testId, bicicleta.getId());
 	  }
+	
+    private App app = new App(); // inject any dependencies you might have
 
+    @Test
+    public void unirestTest() {
+        app.startApp(7000);
+        HttpResponse response = Unirest.get("http://localhost:7000/bicicleta").asString();
+        assertEquals(200, response.getStatus());
+        app.stop();
+    }
+    
 }

@@ -13,12 +13,16 @@ import totem.TotemController;
 import tranca.TrancaController;
 
 public class App {
+	  private static Javalin app = Javalin.create(config -> {
+		    config.defaultContentType = "application/json";
+		  });
 
-    public static void main(String[] args) {
-        Javalin app = Javalin.create(config -> {
-            config.registerPlugin(getConfiguredOpenApiPlugin());
-            config.defaultContentType = "application/json";
-        }).routes(() -> {
+	public static void main(String[] args) {
+		startApp(getHerokuAssignedPort());
+	}
+
+    public static void startApp(int port) {
+       app.create().routes(() -> {
             path("bicicleta", () -> {
                 get(BicicletaController::getAll);
                 post(BicicletaController::create);
@@ -80,7 +84,7 @@ public class App {
             });
         }).start(getHerokuAssignedPort());
 
-        System.out.println("Check out Swagger UI docs at http://localhost:7002/swagger-ui");
+        System.out.println("Check out Swagger UI docs at http://localhost:7000/swagger-ui");
     
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             app.stop();
@@ -114,5 +118,9 @@ public class App {
         }
         return 7000;
     }
+  
+    public void stop() { 	
+        app.stop();
+      }
 
 }

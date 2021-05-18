@@ -33,8 +33,9 @@ public class TrancaTest {
 
     @Test
     public void unirestTest() {
-      //  app.startApp(7000);
-        HttpResponse response = Unirest.get("https://d4-equipamento.herokuapp.com/tranca").asString();
-        assertEquals(200, response.getStatus());
+      String port = System.getenv("PORT") != null ? System.getenv("PORT") : "7002";  
+        
+      HttpResponse response = Unirest.get("http://localhost:" + port + "/tranca").asString();
+      assertEquals(200, response.getStatus());
     }
 }

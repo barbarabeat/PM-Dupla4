@@ -27,7 +27,9 @@ public class TotemTest {
 	
     @Test
     public void unirestTest() {
-        HttpResponse response = Unirest.get("https://d4-equipamento.herokuapp.com/totem").asString();
-        assertEquals(200, response.getStatus());
+		String port = System.getenv("PORT") != null ? System.getenv("PORT") : "7002";  
+        
+		HttpResponse response = Unirest.get("http://localhost:" + port + "/totem").asString();
+		assertEquals(200, response.getStatus());
     }
 }

@@ -30,7 +30,9 @@ public class BicicletaTest {
 
     @Test
     public void unirestTest() {
-        HttpResponse response = Unirest.get("https://d4-equipamento.herokuapp.com/bicicleta").asString();
+        String port = System.getenv("PORT") != null ? System.getenv("PORT") : "7002";  
+        
+        HttpResponse response = Unirest.get("http://localhost:" + port + "/bicicleta").asString();
         assertEquals(200, response.getStatus());
     }
     

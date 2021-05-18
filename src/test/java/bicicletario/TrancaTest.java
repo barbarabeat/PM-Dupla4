@@ -31,13 +31,10 @@ public class TrancaTest {
 	    assertEquals(testId, tranca.getId());
 	  }	
 
-    private App app = new App(); // inject any dependencies you might have
-
     @Test
     public void unirestTest() {
       //  app.startApp(7000);
         HttpResponse response = Unirest.get("https://d4-equipamento.herokuapp.com/tranca").asString();
         assertEquals(200, response.getStatus());
-        app.stop();
     }
 }

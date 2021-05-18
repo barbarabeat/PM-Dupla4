@@ -25,13 +25,9 @@ public class TotemTest {
 	    assertEquals(testId, totem.getId());
 	  }
 	
-    private App app = new App(); // inject any dependencies you might have
-
     @Test
     public void unirestTest() {
-        //app.startApp(7000);
         HttpResponse response = Unirest.get("https://d4-equipamento.herokuapp.com/totem").asString();
         assertEquals(200, response.getStatus());
-        app.stop();
     }
 }

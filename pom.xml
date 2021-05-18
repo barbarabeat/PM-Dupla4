@@ -78,7 +78,7 @@
                 </descriptorRefs>
                 <archive>
                     <manifest>
-                        <mainClass>App</mainClass>
+                        <mainClass>app.App</mainClass>
                     </manifest>
                 </archive>
             </configuration>

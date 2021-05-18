@@ -113,7 +113,7 @@ public class App {
         if (herokuPort != null) {
           return Integer.parseInt(herokuPort);
         }
-        return 7000;
+        return 7002;
     }
 
 }

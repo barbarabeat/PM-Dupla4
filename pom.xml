@@ -93,7 +93,7 @@
               <appName>d4-equipamento</appName>
               <processTypes>
                 <!-- Tell Heroku how to launch your application -->
-                <web>java -cp target/classes:target/dependency/* app.App</web>
+                <web>java $JAVA_OPTS -cp target/classes:target/dependency/* app.App</web>
               </processTypes>
           </configuration>
         </plugin>

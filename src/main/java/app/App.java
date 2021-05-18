@@ -4,21 +4,25 @@ import io.javalin.Javalin;
 import static io.javalin.apibuilder.ApiBuilder.*;
 import io.javalin.plugin.openapi.OpenApiOptions;
 import io.javalin.plugin.openapi.OpenApiPlugin;
-import io.javalin.plugin.openapi.ui.ReDocOptions;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.swagger.v3.oas.models.info.Info;
+
 
 import bicicleta.BicicletaController;
 import totem.TotemController;
 import tranca.TrancaController;
 
 public class App {
+	  private static Javalin app = Javalin.create(config -> {
+		    config.defaultContentType = "application/json";
+		  });
 
-    public static void main(String[] args) {
-        Javalin app = Javalin.create(config -> {
-            config.registerPlugin(getConfiguredOpenApiPlugin());
-            config.defaultContentType = "application/json";
-        }).routes(() -> {
+	public static void main(String[] args) {
+		startApp();
+	}
+
+    public static void startApp() {
+       app.create().routes(() -> {
             path("bicicleta", () -> {
                 get(BicicletaController::getAll);
                 post(BicicletaController::create);
@@ -80,8 +84,7 @@ public class App {
             });
         }).start(getHerokuAssignedPort());
 
-        System.out.println("Check out ReDoc docs at http://localhost:7002/redoc");
-        System.out.println("Check out Swagger UI docs at http://localhost:7002/swagger-ui");
+        System.out.println("Check out Swagger UI docs at http://localhost:7000/swagger-ui");
     
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             app.stop();
@@ -100,7 +103,7 @@ public class App {
                 .activateAnnotationScanningFor("io.javalin.example.java")
                 .path("/swagger-docs") // endpoint for OpenAPI json
                 .swagger(new SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
-                .reDoc(new ReDocOptions("/redoc")) // endpoint for redoc
+              //  .reDoc(new ReDocOptions("/redoc")) // endpoint for redoc
                 .defaultDocumentation(doc -> {
                     doc.json("500", ErrorResponse.class);
                     doc.json("503", ErrorResponse.class);
@@ -115,5 +118,9 @@ public class App {
         }
         return 7000;
     }
+  
+    public void stop() { 	
+        app.stop();
+      }
 
 }

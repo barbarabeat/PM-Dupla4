@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="1" failures="0" name="bicicletario.AppTest" time="0.004" errors="0" skipped="0">
+<testsuite tests="1" failures="0" name="bicicletario.AppTest" time="0.002" errors="0" skipped="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="java.vm.version" value="14.0.1+7"/>
@@ -25,7 +25,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="user.variant" value=""/>
     <property name="os.name" value="Windows 10"/>
-    <property name="classworlds.conf" value="C:\Users\barbarab\eclipse-workspace\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf9209153893966112335.tmp"/>
+    <property name="classworlds.conf" value="C:\Users\barbarab\eclipse-workspace\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf18153140821901203615.tmp"/>
     <property name="sun.jnu.encoding" value="Cp1252"/>
     <property name="java.library.path" value="C:\Program Files\Java\jdk-14.0.1\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jdk-14.0.1/bin/server;C:/Program Files/Java/jdk-14.0.1/bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\dotnet\;C:\Program Files\nodejs\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Java\jdk-14.0.1\bin;C:\Program Files\apache-maven-3.8.1\bin;C:\Program Files\Git\cmd;C:\Program Files\MySQL\MySQL Shell 8.0\bin\;C:\Users\barbarab\AppData\Local\Microsoft\WindowsApps;;C:\Users\barbarab\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\barbarab\AppData\Roaming\npm;C:\Program Files\heroku\bin;C:\Users\barbarab\Desktop;;."/>
     <property name="jdk.debug" value="release"/>
@@ -56,5 +56,5 @@
     <property name="sun.cpu.endian" value="little"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase classname="bicicletario.AppTest" name="shouldAnswerWithTrue" time="0.004"/>
+  <testcase classname="bicicletario.AppTest" name="shouldAnswerWithTrue" time="0.002"/>
 </testsuite>
